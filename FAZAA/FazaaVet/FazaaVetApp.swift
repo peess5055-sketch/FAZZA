@@ -23,6 +23,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         Auth.auth().settings = authSettings
         #endif
 
+        application.registerForRemoteNotifications()
+
         return true
     }
 
@@ -35,6 +37,32 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             return true
         }
         return false
+    }
+
+    func application(
+        _ application: UIApplication,
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
+        Auth.auth().setAPNSToken(deviceToken, type: .prod)
+    }
+
+    func application(
+        _ application: UIApplication,
+        didReceiveRemoteNotification notification: [AnyHashable: Any],
+        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
+    ) {
+        if Auth.auth().canHandleNotification(notification) {
+            completionHandler(.noData)
+            return
+        }
+        completionHandler(.newData)
+    }
+
+    func application(
+        _ application: UIApplication,
+        didFailToRegisterForRemoteNotificationsWithError error: Error
+    ) {
+        print("Failed to register for remote notifications: \(error.localizedDescription)")
     }
 }
 
